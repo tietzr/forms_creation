@@ -1,0 +1,7 @@
+.questions-list, .answer-list{
+    margin-bottom: 30px;
+}
+
+label[class="error"] {
+    display: none!important;
+}

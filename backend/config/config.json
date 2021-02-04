@@ -1,0 +1,4 @@
+{
+    "db_conn": "mongodb+srv://edituser:edituser@questionarios.fcqww.mongodb.net/database?retryWrites=true&w=majority",
+    "database": "questionarios"
+}
