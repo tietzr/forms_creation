@@ -138,7 +138,7 @@ const getAnswersDataTable = () => {
 }
 
 const buildQuestionActions = (questionData) => {
-    return `<span class="list-action question-remove" title="Remover Questão" question_id="${questionData.questionOrder}"><i class="fas fa-trash-alt"></i></span>`;
+    return `<span class="list-action question-remove edit-disabled" title="Remover Questão" question_id="${questionData.questionOrder}"><i class="fas fa-trash-alt"></i></span>`;
 }
 
 const buildAnswernActions = (answerData) => {
@@ -175,6 +175,12 @@ const loadForm = (formId) => {
             const formData = result.form;
             formId = formData._id;
             fillFormEdit(formData);
+
+            if (formData.answers.length > 0){
+                $(".edit-disabled").hide();
+                $(".alert-edit").show();                
+            }
+
             startupAnswersList(formData.answers);
         } else {
             throw result;
@@ -194,6 +200,23 @@ const saveForm = (event) => {
 
     const formData = formToJson(event.currentTarget);
     formData._id = formId;
+    if (!formId){
+        questions.push({
+            questionOrder: getNextOrder(questions, "questionOrder"),
+            question: "Latitude",
+            placeholder: "latitude",
+            maxLength: "20",
+            required: "true"
+        });
+
+        questions.push({
+            questionOrder: getNextOrder(questions, "questionOrder"),
+            question: "Longitude",
+            placeholder: "longitude",
+            maxLength: "20",
+            required: "true"
+        });
+    }
     questions.forEach(question => delete question.actions);
     formData.questions = questions;
     formData.userId = userData._id;

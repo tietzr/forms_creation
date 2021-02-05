@@ -42,13 +42,17 @@ label.required::before {
 }
 
 .footer {
-  position: absolute;
+  /* position: absolute; */
   bottom: 0;
   width: 100%;
   height: 60px;
   line-height: 60px;
   /* background-color: #f5f5f5; */
   color: white;
+}
+
+.content {
+  min-height: calc(100vh - 60px);
 }
 
 /* Absolute Center Spinner */

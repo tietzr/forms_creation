@@ -10,6 +10,8 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users'
     },
+    latitude: "string",
+    longitude: "string",
     answers: [{
         questionId: "string",
         answer: "string"

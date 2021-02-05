@@ -36,9 +36,8 @@ const saveAnswer = () => {
     }).catch(errorHandler);
 }
 
-const handleFormData = (results) =>{
+const handleFormData = (results) => {
     if (!results[0].error) {
-        hidePageLoading();
         const formData = results[0].form;
         setFormDesc(formData.name, answerId);
         buildQuestionList(formData.questions);
@@ -49,6 +48,8 @@ const handleFormData = (results) =>{
             } else {
                 throw results[1];
             }
+        } else {
+            getLocation();
         }
     } else {
         throw results[0];
@@ -58,16 +59,18 @@ const handleFormData = (results) =>{
 const fillFormAnswers = (answerData) => {
     const formInputs = $("#questionsForm input").toArray();
     formInputs.forEach(formInput => {
-        const answer = answerData.answers.find(answer => answer.questionId = formInput.attributes.question_id.value);
+        const answer = answerData.answers.find(answer => answer.questionId == formInput.attributes.question_id.value);
         formInput.value = answer.answer;
         formInput.disabled = true;
     });
 
     $("#saveButton").hide();
+    hidePageLoading();
+
 }
 
-const setFormDesc = (formName, answerId=null) => {
-    if (answerId){
+const setFormDesc = (formName, answerId = null) => {
+    if (answerId) {
         $("#formName").html(`Formulário: ${formName} <br> Resposta de nº  ${answerId} `);
     } else {
         $("#formName").html(`Formulário: ${formName}`);
@@ -80,9 +83,16 @@ const getDataTable = () => {
 
 const buildQuestionList = (fieldList) => {
     const formItem = $("#questionsForm");
+    const locationFields = fieldList.filter(item => item.question == "Latitude" || item.question == "Longitude");
     fieldList.forEach(fieldData => {
+        if (fieldData.question != "Latitude" && fieldData.question != "Longitude"){
+            $(buildField(fieldData)).insertBefore(formItem.children().last())
+        }
+    });
+
+    locationFields.forEach(fieldData => {
         $(buildField(fieldData)).insertBefore(formItem.children().last())
-    })
+    });
 }
 
 const getAnswers = () => {
@@ -102,10 +112,34 @@ const buildField = (fieldData) => {
     return `
     <div class="form-group">
         <label ${fieldData.required ? 'class="required"' : ""}>${fieldData.question}</label>
-        <input class="form-control form-answer" placeholder="${fieldData.placeholder}"  question_id="${fieldData._id}"
+        <input class="form-control form-answer" placeholder="${fieldData.placeholder} (Max ${fieldData.maxLength} caracteres)"  question_id="${fieldData._id}"
             type="text" ${fieldData.required ? "required" : ""} maxlength="${fieldData.maxLength}">
     </div>`;
 }
+
+const geolocationError = () => {
+    setToastarAndRedirect("error", "A localização é obrigatória para o preenchimento do formulário", "/pages/forms/list.html");
+}
+
+const getLocation = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(loadGeolocation, geolocationError);
+    } else {
+        setToastarAndRedirect("error", "Browser não possui a funcionalidade de geolocalização.", "/pages/forms/list.html");
+    }
+}
+
+const loadGeolocation = (position) => {
+    const latitude = $("input[placeholder^='latitude']");
+    latitude.val(position.coords.latitude);
+    latitude.prop('disabled', true);
+
+    const longitude = $("input[placeholder^='longitude']")
+    longitude.val(position.coords.longitude);
+    longitude.prop('disabled', true);
+
+    hidePageLoading();
+} 
 
 $(document).ready(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -130,10 +164,10 @@ $(document).ready(() => {
 
     $("#questionsForm").submit(saveAnswer);
     $("#goBackButton").click(() => {
-        if (formId){
-            window.location.replace(`/pages/forms/builder/builder.html?formId=${formId}`);   
+        if (formId) {
+            window.location.replace(`/pages/forms/builder/builder.html?formId=${formId}`);
         } else {
-            window.location.replace(`/pages/forms/list.html`);   
+            window.location.replace(`/pages/forms/list.html`);
         }
     });
 });
