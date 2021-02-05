@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Answer = require("./answer");
 
 class Form {
     constructor() {
@@ -19,14 +20,15 @@ class Form {
             dtUpdate: "string"
         });
         this.Forms = mongoose.model('Forms', schema);
+        this.answerList = new Answer();
     }
     get(formId) {
         return new Promise(async (resolve, reject) => {
             try {
-                const formData = await this.Forms.findById(formId);
+                const formData = await this.Forms.findById(formId).lean();
 
                 if (formData) {
-                    formData.asnwers = await this.Forms.findById(formId);
+                    formData.answers = await this.answerList.list(formId);
                     resolve(formData);
                 } else {
                     reject('Formulário não encontrado!');
@@ -56,7 +58,8 @@ class Form {
                     resolve(await this.Forms.create(formData));
                 } else {
                     formData.dtUpdate = (new Date()).toLocaleString();
-                    resolve(await this.Forms.updateOne(formData));
+                    const result = await this.Forms.updateOne({ _id: formData._id}, formData)
+                    resolve(formData._id);
                 }
             } catch (error) {
                 reject('Erro ao processar requisição!. Detalhes: ' + error.message);
@@ -67,7 +70,9 @@ class Form {
     delete(formId) {
         return new Promise(async (resolve, reject) => {
             try {
-                const formData = await this.Forms.findByIdAndDelete(formId);
+                const result = await this.Forms.findByIdAndDelete(formId);
+                await this.answerList.deleteByForm(formId);
+                resolve(true)
             } catch (error) {
                 reject('Erro ao processar requisição!. Detalhes: ' + error.message);
             }

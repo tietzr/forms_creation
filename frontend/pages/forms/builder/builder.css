@@ -1,7 +1,25 @@
 .questions-list, .answer-list{
     margin-bottom: 30px;
+    cursor: pointer;
+}
+
+#answerList {
+    width: 100%!important;
+}
+
+.form-buttons {
+    margin-top: 30px;
+}
+
+.form-buttons button {
+    margin-right: 10px;
 }
 
 label[class="error"] {
     display: none!important;
 }
+
+.list-action {
+    margin-left: 10px;
+}
+

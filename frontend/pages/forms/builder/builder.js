@@ -6,7 +6,6 @@ const startupQuestionsDataTable = (dataSet) => {
         {
             title: "Id", data: "questionOrder",
             "width": "10%",
-
         },
         {
             title: "Questão", data: "question",
@@ -51,11 +50,11 @@ const startupQuestionsDataTable = (dataSet) => {
     });
 }
 
-const startupAnswersList = (dataSet) => {
+const startupAnswersList = (answers) => {
 
     const columnConfig = [
-        { title: "Id", data: "answer_id" },
-        { title: "Data de Preenchimento", data: "dt_answer" },
+        { title: "Id", data: "_id" },
+        { title: "Data de Preenchimento", data: "dtCreate" },
         {
             title: "Ações",
             className: 'form-actions',
@@ -64,20 +63,20 @@ const startupAnswersList = (dataSet) => {
         }
     ];
 
+    answers.forEach(answerData => {
+        answerData.actions = buildAnswernActions(answerData);
+    });
+
     const dataTable = $('#answerList').DataTable({
         language: {
             url: 'https://cdn.datatables.net/plug-ins/1.10.22/i18n/Portuguese-Brasil.json'
         },
         searching: false,
         lengthChange: false,
-        data: dataSet,
+        data: answers,
         columns: columnConfig
     });
 
-// const answersList = result.answers;
-    // answersList.forEach(answerData => {
-    //     answerData.actions = buildAnswernActions(answerData);
-    // });
 
     dataTable.on('draw', function () {
         addAnswerRowEvents();
@@ -93,12 +92,40 @@ const addQuestionRowEvents = () => {
     });
 }
 
+const removeAnswer = (event) => {
+    showPageLoading();
+    fetch(`${getConfig().backend_url}/answer/delete`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: "POST",
+            body: JSON.stringify({ answerId: event.currentTarget.attributes.answer_id.value })
+        }
+    ).then(result => result.json()).then(result => {
+        if (!result.error) {
+            const dataTable = getAnswersDataTable();
+            dataTable.row($(event.currentTarget).parents('tr'))
+                .remove()
+                .draw();
+
+            hidePageLoading();
+            setToaster("success", "Resposta removida com sucesso!");
+        } else {
+            throw result;
+        }
+    }).catch(errorHandler);
+}
 const addAnswerRowEvents = () => {
-    $(".question-remove").off('click').on("click", (event) => {
-        const dataTable = getQuestionsDataTable();
-        dataTable.row($(event.currentTarget).parents('tr'))
-            .remove()
-            .draw();
+    $(".answer-remove").off('click').on("click", (event) => {
+        confirmationModal("Remover Resposta", `Deseja realmente remover a resposta de id ${event.currentTarget.attributes.answer_id.value}?`,
+        () => {
+            removeAnswer(event);
+        });        
+    });
+
+    $(".answer-view").off('click').on("click", (event) => {
+        window.location.replace(`/pages/forms/answer/answer.html?formId=${formId}&answerId=${event.currentTarget.attributes.answer_id.value}`);     
     });
 }
 
@@ -106,12 +133,17 @@ const getQuestionsDataTable = () => {
     return $('#questionsList').DataTable();
 }
 
+const getAnswersDataTable = () => {
+    return $('#answerList').DataTable();
+}
+
 const buildQuestionActions = (questionData) => {
-    return `<span class="question-remove" title="Remover Questão" question_id="${questionData.questionOrder}"><i class="fas fa-trash-alt"></i></span>`;
+    return `<span class="list-action question-remove" title="Remover Questão" question_id="${questionData.questionOrder}"><i class="fas fa-trash-alt"></i></span>`;
 }
 
 const buildAnswernActions = (answerData) => {
-    return `<span class="question-remove" title="Remover Resposta" answer_id="${answerData.answerId}"><i class="fas fa-trash-alt"></i></span>`;
+    return `<span class="list-action answer-remove" title="Remover Resposta" answer_id="${answerData._id}"><i class="fas fa-trash-alt"></i></span>
+                <span class="list-action answer-view" title="Visualizar Resposta" answer_id="${answerData._id}"><i class="far fa-eye"></i></span>`;
 }
 
 const modalQuestionToggle = () => {
@@ -139,18 +171,16 @@ const loadForm = (formId) => {
     fetch(`${getConfig().backend_url}/form/${formId}`).then(result => result.json()).then(result => {
         if (!result.error) {
             hidePageLoading();
-            $(".answer-list").show();
+            $("#navAnswers").show();
             const formData = result.form;
+            formId = formData._id;
             fillFormEdit(formData);
-            startupAnswersList([]);
+            startupAnswersList(formData.answers);
         } else {
             throw result;
         }
     }).catch((error) => {
-        setToaster("error", error.message);
-        setTimeout(() => {
-            window.location.replace(`/pages/forms/list.html`)
-        }, 3000);
+        setToastarAndRedirect("error", error.message,`/pages/forms/list.html`);
     });
 }
 
@@ -163,6 +193,7 @@ const saveForm = (event) => {
     }
 
     const formData = formToJson(event.currentTarget);
+    formData._id = formId;
     questions.forEach(question => delete question.actions);
     formData.questions = questions;
     formData.userId = userData._id;
@@ -174,11 +205,10 @@ const saveForm = (event) => {
         method: "POST",
         body: JSON.stringify(formData)
     }).then(result => result.json()).then(result => {
-        debugger
-        hidePageLoading();
         if (!result.error) {
-            window.location.replace(`/pages/forms/builder/builder.html?id=${result.formId}`)
+            setToastarAndRedirect("success", "Questionário salvo com sucesso!",`/pages/forms/list.html`);
         } else {
+            hidePageLoading();
             errorHandler(result);
         }
     }).catch(errorHandler);
@@ -203,11 +233,12 @@ const handleAddQuestion = (event) => {
 
 $(document).ready(() => {
     userData = verifyLoggedUser();
+    attachLogOut(userData);
     const urlParams = new URLSearchParams(window.location.search);
     showPageLoading();
     startupQuestionsDataTable([]);
-    if (urlParams.has("id")) {
-        formId = urlParams.get("id");
+    if (urlParams.has("formId")) {
+        formId = urlParams.get("formId");
         loadForm(formId);
     } else {
         hidePageLoading();
@@ -216,4 +247,12 @@ $(document).ready(() => {
     $("#builderForm").on("submit", saveForm);
     $("#newQuestion").click(modalQuestionToggle);
     $("#addQuestion").click(handleAddQuestion);
+    $("#newAnswer").click(() => {
+        window.location.replace(`/pages/forms/answer/answer.html?formId=${formId}`);
+    });
+
+    $("#goBackButton").click(() => {
+        window.location.replace(`/pages/forms/list.html`);   
+    });
+
 });

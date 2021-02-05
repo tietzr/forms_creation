@@ -1,21 +1,21 @@
 var express = require('express');
 var router = express.Router();
 
-const Form = require("../models/form");
-const form = new Form();
+const Answer = require("../models/answer");
+const answer = new Answer();
     
-router.post('/save', async (req, res) => {
+router.post('/create', async (req, res) => {
     try {
-        const { _id } = await form.save(req.body);
-        res.status(200).send({ "success": true, "formId": _id });
+        const { _id } = await answer.create(req.body);
+        res.status(200).send({ "success": true, "answerId": _id });
     } catch (error) {
-        res.status(500).send({ error: true, message: error });
+        res.status(500).send({ error: true, message: error.message });
     }
 });
 
 router.post('/delete', async (req, res) => {
     try {
-        const removed = await form.delete(req.body.formId);
+        const removed = await answer.delete(req.body.answerId);
         res.status(200).send({ "success": true, "removido": removed });
     } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -24,8 +24,8 @@ router.post('/delete', async (req, res) => {
 
 router.post('/list', async (req, res) => {
     try {
-        const forms = await form.list(req.body.userId);
-        res.status(200).send({ "success": true, "forms": forms });
+        const answers = await answer.list(req.body.formId);
+        res.status(200).send({ "success": true, "answers": answers });
     } catch (error) {
         res.status(500).send({ error: true, message: error });
     }
@@ -33,8 +33,8 @@ router.post('/list', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const formData = await form.get(req.params.id);
-        res.status(200).send({ "success": true, "form": formData }); 
+        const answerData = await answer.get(req.params.id);
+        res.status(200).send({ "success": true, "answer": answerData }); 
     } catch (error) {
         res.status(500).send({ error: true, message: error });
     }

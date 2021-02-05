@@ -59,10 +59,17 @@ const verifyLoggedUser = () => {
     }
 }
 
-const confirmationModal = (title, message, callbackConfirmation, callbackDismiss) => {
+const setToastarAndRedirect = (toasterType, message, url) =>  {
+    setToaster(toasterType, message);
+    setTimeout(() => {
+        window.location.replace(url);
+    }, 3000);
+}
+
+const confirmationModal = (title, message, callbackConfirmation, callbackDismiss=null) => {
     const content = `
     <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">${title}</h5>
@@ -89,6 +96,17 @@ const confirmationModal = (title, message, callbackConfirmation, callbackDismiss
     $("#modalDismiss").on("click", () => {
         $("#confirmationModal").modal("toggle");
         $("#confirmationModal").remove();
-        callbackDismiss();
+        if (callbackDismiss){
+            callbackDismiss();
+        }
+    });
+}
+
+const attachLogOut = (userData) => {
+    const names = userData.name.split(" ").slice(0, 2);
+    $("#loggedUser").text(`${names.join(" ")}`);
+    $("#logOut").click(() => {
+        window.localStorage.removeItem("@questionario-user_data");
+        window.location.replace("/pages/login/login.html");
     });
 }

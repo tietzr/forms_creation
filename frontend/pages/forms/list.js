@@ -45,7 +45,7 @@ const loadForms = (userId) => {
                 'Content-Type': 'application/json'
             },
             method: "POST",
-            body: JSON.stringify({_id: userId})
+            body: JSON.stringify({ userId: userId })
         }
     ).then(result => result.json()).then(result => {
         if (!result.error) {
@@ -57,20 +57,44 @@ const loadForms = (userId) => {
     }).catch(errorHandler);
 }
 
+const removeForm = (event) => {
+    fetch(`${getConfig().backend_url}/form/delete`,
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: "POST",
+            body: JSON.stringify({ formId: event.currentTarget.attributes.form_id.value })
+        }
+    ).then(result => result.json()).then(result => {
+        if (!result.error) {
+            const dataTable = getDataTable();
+            dataTable.row($(event.currentTarget).parents('tr'))
+                .remove()
+                .draw();
+            hidePageLoading();
+            setToaster("success", "Formulário removido com sucesso!");
+            loadForms(userData._id);
+        } else {
+            throw result;
+        }
+    }).catch(errorHandler);
+}
+
 const addQuestionRowEvents = () => {
     $(".form-remove").off('click').on("click", (event) => {
-        const dataTable = getDataTable();
-        dataTable.row($(event.currentTarget).parents('tr'))
-            .remove()
-            .draw();
+        confirmationModal("Remover Questionário", "Deseja realmente remover o questionário? <br> Ao remover o questionário, todas as respostas enviadas também serão removidas.",
+            () => {
+                removeForm(event);
+            });
     });
 
     $(".form-edit").off('click').on("click", (event) => {
-        window.location.replace(`builder/builder.html?id=${event.currentTarget.attributes.form_id.value}`)
+        window.location.replace(`builder/builder.html?formId=${event.currentTarget.attributes.form_id.value}`);
     });
 
     $(".form-answer").off('click').on("click", (event) => {
-        window.location.replace(`answer/answer.html?id=${event.currentTarget.attributes.form_id.value}`)
+        window.location.replace(`answer/answer.html?formId=${event.currentTarget.attributes.form_id.value}`);
     });
 }
 
@@ -90,9 +114,8 @@ const modalQuestionToggle = () => {
 
 $(document).ready(() => {
     userData = verifyLoggedUser();
+    attachLogOut(userData);
     showPageLoading();
     loadForms(userData._id);
-
-    confirmationModal("23", "wewewe", () => { console.log("sim")}, () => {console.log("não")})
     startupFormsList([]);
 });

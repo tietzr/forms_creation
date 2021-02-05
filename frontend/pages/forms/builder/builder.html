@@ -37,8 +37,29 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark bg-dark">
-        <span class="navbar-brand">Questionários</span>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
+        <div>
+            <span class="forms-logo">
+                <i class="fab fa-wpforms"></i>
+            </span>
+            <a href="/pages/forms/list.html" class="navbar-brand">Questionários</a>
+        </div>
+        <!-- <div class="navbar-collapse" id="navbarNavDropdown"> -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown user-nav">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <span class="user-logo">
+                            <i class="far fa-user"></i>
+                        </span>
+                        <span id="loggedUser">Rafael Tietz Strellow</span>
+                    </a>
+                    <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdownMenuLink">
+                        <span class="dropdown-item user-nav" id="logOut">Sair</span>
+                    </div>
+                </li>
+            </ul>
+        <!-- </div> -->
     </nav>
     <div class="container">
         <div class="page-title">
@@ -51,28 +72,47 @@
                 <input name="name" class="form-control" placeholder="Nome" type="text" max="100" required>
             </div>
 
-            <div class="questions-list">
-                <div class="page-sub-title">
-                    <span class="float-right btn btn-outline-primary" id="newQuestion">Nova Questão</span>
-                    <h5 class="">Questões</h5>
-                    <hr>
+            <ul class="nav nav-tabs nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#questions" data-toggle="tab">Questões</a>
+                </li>
+                <li class="nav-item" id="navAnswers" style="display: none;">
+                    <a class="nav-link" href="#answers" data-toggle="tab">Respostas</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="questions" class="questions-list tab-pane active">
+                    <div class="page-sub-title">
+                        <span class="float-right btn btn-outline-primary" id="newQuestion">Nova Questão</span>
+                        <h5 class="">Lista de Questões</h5>
+                        <hr>
+                    </div>
+                    <table id="questionsList" class="display"></table>
+                    <div class="form-group d-flex justify-content-end form-buttons">
+                        <button type="button" id="goBackButton" class="btn btn-secondary">Voltar</button>
+                        <button type="submit" class="btn btn-primary"> Salvar </button>
+                    </div>
                 </div>
-                <table id="questionsList" class="display"></table>
-            </div>
 
-            <div class="answer-list" style="display: none;">
-                <div class="page-sub-title">
-                    <span class="float-right btn btn-outline-primary" id="newQuestion">Nova Resposta</span>
-                    <h5 class="">Respostas</h5>
-                    <hr>
+                <div id="answers" class="answer-list tab-pane">
+                    <div class="page-sub-title">
+                        <span id="newAnswer" class="float-right btn btn-outline-primary" id="newQuestion">Nova
+                            Resposta</span>
+                        <h5 class="">Lista de Respostas</h5>
+                        <hr>
+                    </div>
+                    <table id="answerList" class="display"></table>
                 </div>
-                <table id="answerList" class="display"></table>
-            </div>
-            <div class="form-group d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary"> Salvar </button>
             </div>
         </form>
     </div>
+    <footer class="footer bg-dark">
+        <div class="container d-flex justify-content-between">
+            <div class="">Rafael Tietz Strellow</div>
+            <a href = "mailto: rafaeltietz@gmail.com">Contato: rafaeltietz@gmail.com</a>
+
+        </div>
+    </footer>
 
     <div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="newQuestionLabel"
         aria-hidden="true">
@@ -88,22 +128,26 @@
                     <form id="questionForm">
                         <div class="form-group">
                             <label class="required">Pergunta</label>
-                            <input name="question" class="form-control" placeholder="Descritivo da questão" type="text" required maxlength="100">
+                            <input name="question" class="form-control" placeholder="Descritivo da questão" type="text"
+                                required maxlength="100">
                         </div>
                         <div class="form-group">
                             <label>Dica de resposta</label>
-                            <input name="placeholder" class="form-control" placeholder="Exemplo de resposta" type="text" maxlength="100">
+                            <input name="placeholder" class="form-control" placeholder="Exemplo de resposta" type="text"
+                                maxlength="100">
                         </div>
                         <div class="form-group">
                             <label class="required">Tamanho máximo da resposta</label>
-                            <input name="maxLength" class="form-control" placeholder="Tamanho" type="number" required value="100" max="5000">
+                            <input name="maxLength" class="form-control" placeholder="Tamanho" type="number" required
+                                value="100" max="5000">
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" name="required" value="true" type="checkbox" id="flexCheckChecked" checked>
+                            <input class="form-check-input" name="required" value="true" type="checkbox"
+                                id="flexCheckChecked" checked>
                             <label class="form-check-label" for="flexCheckChecked">
-                              Campo obrigatório
+                                Campo obrigatório
                             </label>
-                          </div>
+                        </div>
                         <div class="modal-buttons d-flex justify-content-end">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" id="addQuestion"> Adicionar </button>
