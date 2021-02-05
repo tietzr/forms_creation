@@ -29,6 +29,7 @@ const getNextOrder = (itemsList, idField) => {
     return (Math.max.apply(Math, itemsList.map(function (o) { return o[idField]; })) | 0) + 1
 }
 
+// Adiciona Sobreposição de Loading á pagina
 const showPageLoading = () => {
     const loading = $(".page-loading");
     if (loading.length == 0) {
@@ -38,6 +39,7 @@ const showPageLoading = () => {
     }
 }
 
+// Remove Sobreposição de Loading á pagina
 const hidePageLoading = () => {
     const loading = $(".page-loading");
     if (loading.length != 0) {
@@ -45,11 +47,13 @@ const hidePageLoading = () => {
     }
 }
 
+// Lida com erros da aplicação
 const errorHandler = (error) => {
     setToaster("error", error.message);
     hidePageLoading();
 }
 
+// Verifica se o usuário cadastrado é valido e retona os dados.
 const verifyLoggedUser = () => {
     const userData = JSON.parse(localStorage.getItem("@questionario-user_data"));
     if (userData == null) {
@@ -59,6 +63,7 @@ const verifyLoggedUser = () => {
     }
 }
 
+// Adiciona uma mensagem na tela e redireciona a página.
 const setToastarAndRedirect = (toasterType, message, url) =>  {
     setToaster(toasterType, message);
     setTimeout(() => {
@@ -66,6 +71,7 @@ const setToastarAndRedirect = (toasterType, message, url) =>  {
     }, 3000);
 }
 
+// Cria um modal de confirmação na tela e executa o callbackk de acordo com o botão selecionado
 const confirmationModal = (title, message, callbackConfirmation, callbackDismiss=null) => {
     const content = `
     <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
@@ -102,6 +108,8 @@ const confirmationModal = (title, message, callbackConfirmation, callbackDismiss
     });
 }
 
+
+// Adiciona o evento de log out nas páginas
 const attachLogOut = (userData) => {
     const names = userData.name.split(" ").slice(0, 2);
     $("#loggedUser").text(`${names.join(" ")}`);

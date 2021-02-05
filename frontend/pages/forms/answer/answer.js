@@ -9,6 +9,26 @@ const loadAnswer = (answerId) => {
     return fetch(`${getConfig().backend_url}/answer/${answerId}`).then(result => result.json());
 }
 
+const handleFormData = (results) => {
+    if (!results[0].error) {
+        const formData = results[0].form;
+        setFormDesc(formData.name, answerId);
+        buildQuestionList(formData.questions);
+
+        if (answerId) {
+            if (!results[1].error) {
+                fillFormAnswers(results[1].answer);
+            } else {
+                throw results[1];
+            }
+        } else {
+            getLocation();
+        }
+    } else {
+        throw results[0];
+    }
+}
+
 const saveAnswer = () => {
     showPageLoading();
 
@@ -36,51 +56,6 @@ const saveAnswer = () => {
     }).catch(errorHandler);
 }
 
-const handleFormData = (results) => {
-    if (!results[0].error) {
-        const formData = results[0].form;
-        setFormDesc(formData.name, answerId);
-        buildQuestionList(formData.questions);
-
-        if (answerId) {
-            if (!results[1].error) {
-                fillFormAnswers(results[1].answer);
-            } else {
-                throw results[1];
-            }
-        } else {
-            getLocation();
-        }
-    } else {
-        throw results[0];
-    }
-}
-
-const fillFormAnswers = (answerData) => {
-    const formInputs = $("#questionsForm input").toArray();
-    formInputs.forEach(formInput => {
-        const answer = answerData.answers.find(answer => answer.questionId == formInput.attributes.question_id.value);
-        formInput.value = answer.answer;
-        formInput.disabled = true;
-    });
-
-    $("#saveButton").hide();
-    hidePageLoading();
-
-}
-
-const setFormDesc = (formName, answerId = null) => {
-    if (answerId) {
-        $("#formName").html(`Formulário: ${formName} <br> Resposta de nº  ${answerId} `);
-    } else {
-        $("#formName").html(`Formulário: ${formName}`);
-    }
-}
-
-const getDataTable = () => {
-    return $('#questionsList').DataTable();
-}
-
 const buildQuestionList = (fieldList) => {
     const formItem = $("#questionsForm");
     const locationFields = fieldList.filter(item => item.question == "Latitude" || item.question == "Longitude");
@@ -93,6 +68,30 @@ const buildQuestionList = (fieldList) => {
     locationFields.forEach(fieldData => {
         $(buildField(fieldData)).insertBefore(formItem.children().last())
     });
+}
+
+const fillFormAnswers = (answerData) => {
+    const formInputs = $("#questionsForm input").toArray();
+    formInputs.forEach(formInput => {
+        const answer = answerData.answers.find(answer => answer.questionId == formInput.attributes.question_id.value);
+        formInput.value = answer.answer;
+        formInput.disabled = true;
+    });
+
+    $("#saveButton").hide();
+    hidePageLoading();
+}
+
+const setFormDesc = (formName, answerId = null) => {
+    if (answerId) {
+        $("#formName").html(`Formulário: ${formName} <br> Resposta de nº  ${answerId} `);
+    } else {
+        $("#formName").html(`Formulário: ${formName}`);
+    }
+}
+
+const getDataTable = () => {
+    return $('#questionsList').DataTable();
 }
 
 const getAnswers = () => {

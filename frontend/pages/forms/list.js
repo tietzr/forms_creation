@@ -1,6 +1,8 @@
 var formId = null;
 var userData = null;
 
+/////////////////// DataGrid
+
 const startupFormsList = (dataSet) => {
 
     const columnConfig = [
@@ -27,15 +29,6 @@ const startupFormsList = (dataSet) => {
     dataTable.on('draw', function () {
         addQuestionRowEvents();
     });
-}
-
-const setFormsDataSource = (forms) => {
-    forms.forEach(formData => {
-        formData.actions = buildQuestionActions(formData);
-    });
-    const datatable = getDataTable();
-    datatable.clear();
-    datatable.rows.add(forms).draw();
 }
 
 const loadForms = (userId) => {
@@ -79,6 +72,17 @@ const removeForm = (event) => {
             throw result;
         }
     }).catch(errorHandler);
+}
+
+/////////////////// Acesso ao Backend
+
+const setFormsDataSource = (forms) => {
+    forms.forEach(formData => {
+        formData.actions = buildQuestionActions(formData);
+    });
+    const datatable = getDataTable();
+    datatable.clear();
+    datatable.rows.add(forms).draw();
 }
 
 const addQuestionRowEvents = () => {
