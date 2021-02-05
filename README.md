@@ -14,6 +14,7 @@ Necessário: Nodejs;
 Executar comandos:
 
 npm install
+
 npm run server
 
 --------------------- Usuários para Teste ---------------------
