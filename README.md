@@ -4,8 +4,10 @@ Cadastro Questionários
 
 --------------------- Execução da Aplicação ---------------------
 
-Frontend: 
+Frontend:
+
 Servidor web (por exemplo, IIS ou Live Server do Visual Studio Code)
+
 
 Backend:
 
@@ -15,7 +17,9 @@ Executar comandos:
 
 npm install
 
-npm run server
+node server
+
+O servidor roda na porta 3000.
 
 --------------------- Usuários para Teste ---------------------
 
